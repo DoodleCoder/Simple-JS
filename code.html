@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Homework 4</title>
+        <style>
+            p {
+                font-size: 20px;
+                margin-top: 15%;
+                font-weight: bolder;
+            }
+            input {
+                margin: 0.5%;
+            }
+        </style>
+    </head>
+    <body style="text-align: center;">
+        <p>Enter URL for list of tallest buildings JSON File</p>
+        <form>
+            <input type="text" id="file">
+            <br>
+            <input type="submit" onclick="myFunc()" value="Submit Query">
+        </form>
+        <div id="end"></div>
+        <script>
+            function headWrite(tab, table) {
+                tab.document.write('<tr>');
+                for(var i=0; i < table.Header.Data.length; i++)
+                {
+                    tab.document.write('<th>' + table.Header.Data[i] + '</th>');
+                }
+                tab.document.write('</tr>');
+            }
+
+            function bodyWrite(tab, rows) {
+                for (let i = 0; i < rows.length; i++) 
+                {
+                    var element = rows[i];
+                    tab.document.write('<tr>');
+                    tab.document.write('<td>' + element.Rank + '</td>');
+                    tab.document.write('<td>' + element.Name + '</td>');
+
+                    var st = '<td><ul>';
+                    if (element.Hubs.Hub.length > 0)
+                    {
+                        for (let j = 0; j < element.Hubs.Hub.length; j++) {
+                            if(j === 0)
+                            {
+                                st+= '<li><b>' + element.Hubs.Hub[j] + '</b></li>';
+                            }
+                            else 
+                            {
+                                st+= '<li>' + element.Hubs.Hub[j] + '</li>';                                
+                            }
+                        }
+                    }
+                    st += '</ul></td>';
+                    tab.document.write(st);
+                    
+                    tab.document.write('<td>' + element.Height + '</td>');
+                    tab.document.write('<td><a href="' + element.HomePage + '">' + element.HomePage + '</a></td>');
+                    tab.document.write('<td><img src="' + element.Logo + '" width="200px" height="200px"></td>');
+                    tab.document.write('</tr>');
+                }
+            }
+
+            function myFunc() {
+                var req = new XMLHttpRequest();
+                var fileName = document.getElementById('file').value;
+                if(fileName === "")
+                    alert('Empty Parameter');
+                else
+                {
+                    try
+                    {
+                        req.open('GET', fileName, false);
+                        req.send(null);
+                        if(req.status === 200) 
+                        {
+                            var obj = JSON.parse(req.responseText);
+                            var table = obj.Mainline.Table;
+                            if (table.hasOwnProperty('Row'))
+                            {
+                                // console.log(table.Header.Data);
+                                if((table.Header.Data.length == 6) && (table.Header.Data[0] == 'Rank') && (table.Header.Data[1] == 'Name') && (table.Header.Data[2] == 'City / Country') && (table.Header.Data[3] == 'Height (ft)') && (table.Header.Data[4] == 'Wiki Page') && (table.Header.Data[5] == 'Image'))
+                                {
+                                    console.log('YOOOOO');
+                                    var myWindow = open('','Ass4','width=800px,height=600px');
+                                    myWindow.document.write('<style> body { max-width: 100%; } table,th,td { border: 1px solid black; }</style>');
+                                    myWindow.document.write('<table>');
+                                    headWrite(myWindow, table);
+                                    var rows = table.Row;
+                                    bodyWrite(myWindow, rows);
+                                    myWindow.document.write('</table>');
+                                }
+                                else
+                                    alert('Different Header Data');
+                            }
+                            else 
+                            {
+                                alert('No rows in the file');
+                            }
+                        }
+                        else
+                        {
+                            alert('File not found');
+                        }
+                    }
+                    catch(err)
+                    {
+                        alert('File not found');
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
